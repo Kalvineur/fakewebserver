@@ -4,12 +4,13 @@ Non-admin Windows PowerShell command to launch a fake web server for local dev p
 The fake web server listen on `http://localhost:$port/`.
 
 ## Settings
-- `$root` : local directory folder, acting as server root.
-- `$port` : port number.
+- `$root` : local directory folder, acting as server root. (default value : ".")
+- `$port` : port number. (default value : 8000)
+- `$index` : default file to serve. (default value : "index.html")
 
 ## Command (edit before pasting)
 ```PowerShell
-$root=".";$port=8000;$listener=New-Object System.Net.HttpListener;$listener.Prefixes.Add("http://localhost:$port/");$listener.Start();Write-Output "Listening at http://localhost:$port/";function HandleRequest{param([System.Net.HttpListenerContext]$context);$request=$context.Request;$response=$context.Response;$path=$request.Url.LocalPath.Substring(1);if([string]::IsNullOrEmpty($path)-or(Test-Path -Path (Join-Path -Path $root -ChildPath $path) -PathType Container)){$path="index.html"};$fullPath=Join-Path -Path $root -ChildPath $path;if(Test-Path -Path $fullPath -PathType Leaf){try{$bytes=[System.IO.File]::ReadAllBytes($fullPath);$response.ContentType=Get-ContentType $fullPath;$response.ContentLength64=$bytes.Length;$response.OutputStream.Write($bytes,0,$bytes.Length)}catch{$response.StatusCode=500;$response.StatusDescription="Internal Server Error"}}else{$response.StatusCode=404;$response.StatusDescription="Not Found";$errorHtml="<html><head><title>404 Not Found</title></head><body><h1>404 - File Not Found</h1><p>The requested URL $($request.Url.LocalPath) was not found on this server.</p></body></html>";$errorBytes=[System.Text.Encoding]::UTF8.GetBytes($errorHtml);$response.ContentType="text/html";$response.ContentLength64=$errorBytes.Length;$response.OutputStream.Write($errorBytes,0,$errorBytes.Length)};$response.OutputStream.Close()};function Get-ContentType{param([string]$path);switch([System.IO.Path]::GetExtension($path).ToLower()){".html"{"text/html"};".htm"{"text/html"};".txt"{"text/plain"};".css"{"text/css"};".js"{"application/javascript"};".jpg"{"image/jpeg"};".jpeg"{"image/jpeg"};".png"{"image/png"};".gif"{"image/gif"};".svg"{"image/svg+xml"};".pdf"{"application/pdf"};".json"{"application/json"};".xml"{"application/xml"};default{"application/octet-stream"}}};try{while($listener.IsListening){$context=$listener.GetContext();HandleRequest $context}}finally{$listener.Stop()}
+$root=".";$port=8000;$index="index.html";$listener=New-Object System.Net.HttpListener;$listener.Prefixes.Add("http://localhost:$port/");$listener.Start();Write-Output "Listening at http://localhost:$port/";function HandleRequest{param([System.Net.HttpListenerContext]$context);$request=$context.Request;$response=$context.Response;$path=$request.Url.LocalPath.Substring(1);if([string]::IsNullOrEmpty($path)-or(Test-Path -Path (Join-Path -Path $root -ChildPath $path) -PathType Container)){$path=$index};$fullPath=Join-Path -Path $root -ChildPath $path;if(Test-Path -Path $fullPath -PathType Leaf){try{$bytes=[System.IO.File]::ReadAllBytes($fullPath);$response.ContentType=Get-ContentType $fullPath;$response.ContentLength64=$bytes.Length;$response.OutputStream.Write($bytes,0,$bytes.Length)}catch{$response.StatusCode=500;$response.StatusDescription="Internal Server Error"}}else{$response.StatusCode=404;$response.StatusDescription="Not Found";$errorHtml="<html><head><title>404 Not Found</title></head><body><h1>404 - File Not Found</h1><p>The requested URL $($request.Url.LocalPath) was not found on this server.</p></body></html>";$errorBytes=[System.Text.Encoding]::UTF8.GetBytes($errorHtml);$response.ContentType="text/html";$response.ContentLength64=$errorBytes.Length;$response.OutputStream.Write($errorBytes,0,$errorBytes.Length)};$response.OutputStream.Close()};function Get-ContentType{param([string]$path);switch([System.IO.Path]::GetExtension($path).ToLower()){".html"{"text/html"};".htm"{"text/html"};".txt"{"text/plain"};".css"{"text/css"};".js"{"application/javascript"};".jpg"{"image/jpeg"};".jpeg"{"image/jpeg"};".png"{"image/png"};".gif"{"image/gif"};".svg"{"image/svg+xml"};".pdf"{"application/pdf"};".json"{"application/json"};".xml"{"application/xml"};default{"application/octet-stream"}}};try{while($listener.IsListening){$context=$listener.GetContext();HandleRequest $context}}finally{$listener.Stop()}
 ```
 
 ## Exploded code with comments
@@ -19,6 +20,9 @@ $root = "."
 
 # Set the port number
 $port = 8000
+
+# Set the file to serve on the base URL
+$index = "index.html"
 
 # Create a new HTTP listener
 $listener = New-Object System.Net.HttpListener
@@ -44,7 +48,7 @@ function HandleRequest {
 
     # If the path is empty or it points to a directory, default to serving 'index.html'
     if ([string]::IsNullOrEmpty($path) -or (Test-Path -Path (Join-Path -Path $root -ChildPath $path) -PathType Container)) {
-        $path = "index.html"
+        $path = $index
     }
 
     # Construct the full path to the requested file
