@@ -8,7 +8,7 @@ The fake web server listen on `http://localhost:$port/`.
 ## Settings
 - `$root` : local directory folder, acting as server root. (default value : ".")
 - `$port` : port number. (default value : 8000)
-- `$index` : default file to serve. (default value : "index.html")
+- `$index` : file to serve on "/". (default value : "index.html")
 
 ## Command (edit before pasting)
 ```PowerShell
