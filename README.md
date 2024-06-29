@@ -34,7 +34,7 @@ $root = "."
 # Set the port number
 $port = 8000
 
-# Set the file to serve on the base URL
+# Set the config file to load custom routes from
 $configFile = "routes.json";
 
 # Check if the config file exist
@@ -200,7 +200,7 @@ param(
     # Set the port number
     [UInt16]$port = 8000,
 
-    # Set the file to serve on the base URL
+    # Set the config file to load custom routes from
     [String]$configFile = "routes.json";
 )
 
