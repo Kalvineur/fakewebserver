@@ -9,7 +9,8 @@ The fake web server listen on `http://localhost:$port/`.
 ## Settings
 - `$root` : local directory folder, acting as server root. (default value : ".")
 - `$port` : port number. (default value : 8000)
-- `$configFile` : JSON listing custom routes and the file to serve (default value : "config.json")
+- `$configFile` : JSON configuration file. (default value : "config.json")
+    - `routes` : list of custom routes and corresponding file to serve.
 
 ## Command
 ```PowerShell
