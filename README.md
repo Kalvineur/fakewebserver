@@ -9,15 +9,15 @@ The fake web server listen on `http://localhost:$port/`.
 ## Settings
 - `$root` : local directory folder, acting as server root. (default value : ".")
 - `$port` : port number. (default value : 8000)
-- `$configFile` : JSON listing custom routes and the file to serve (default value : "routes.json")
+- `$configFile` : JSON listing custom routes and the file to serve (default value : "config.json")
 
 ## Command
 ```PowerShell
-$root=".";$port=8000;$configFile="routes.json";if(Test-Path -Path $configFile -PathType Leaf){try{$config=Get-Content -Raw -Path $configFile|ConvertFrom-Json;Write-Host "Configuration file '$configFile' loaded successfully."-ForegroundColor Green}catch{Write-Host "Failed to load configuration file '$configFile'. Using default routing."-ForegroundColor Red;$config=@{routes=@{}}}}else{Write-Host "Configuration file '$configFile' not found. Using default routing."-ForegroundColor Yellow;$config=@{routes=@{}}};$listener=New-Object System.Net.HttpListener;$listener.Prefixes.Add("http://localhost:$port/");$listener.Start();Write-Host "Listening at http://localhost:$port/"-BackgroundColor Green;function HandleRequest{param([System.Net.HttpListenerContext]$context);$request=$context.Request;$response=$context.Response;$time=$(Get-Date).ToString("yyyy-MM-dd HH:mm:ss");$path=$request.Url.LocalPath;if($config.routes.PSObject.Properties.Name -contains $path){$file=$config.routes.$path}else{$file=$path.Substring(1)};$fullPath=Join-Path -Path $root -ChildPath $file;$summary="$time | URL: $path | File: $fullPath";if(Test-Path -Path $fullPath -PathType Leaf){try{$bytes=[System.IO.File]::ReadAllBytes($fullPath);$response.ContentType=Get-ContentType $fullPath;$response.ContentLength64=$bytes.Length;$response.OutputStream.Write($bytes,0,$bytes.Length);Write-Host "$summary | Status: OK"-ForegroundColor Green}catch{$response.StatusCode=500;$response.StatusDescription="Internal Server Error";Write-Host "$summary | Status: ERROR"-ForegroundColor Red}}else{$response.StatusCode=404;$response.StatusDescription="Not Found";$errorHtml="<html><head><title>404 Not Found</title></head><body><h1>404 - File Not Found</h1><p>The requested URL $($path) was not found on this server.</p></body></html>";$errorBytes=[System.Text.Encoding]::UTF8.GetBytes($errorHtml);$response.ContentType="text/html";$response.ContentLength64=$errorBytes.Length;$response.OutputStream.Write($errorBytes,0,$errorBytes.Length);Write-Host "$summary | Status: 404 Not Found"-ForegroundColor Yellow}$response.OutputStream.Close()}; function Get-ContentType{param([string]$path);switch([System.IO.Path]::GetExtension($path).ToLower()){".html"{"text/html"} ".htm"{"text/html"} ".txt"{"text/plain"} ".css"{"text/css"} ".js"{"application/javascript"} ".jpg"{"image/jpeg"} ".jpeg"{"image/jpeg"} ".png"{"image/png"} ".gif"{"image/gif"} ".svg"{"image/svg+xml"} ".pdf"{"application/pdf"} ".json"{"application/json"} ".xml"{"application/xml"} default{"application/octet-stream"}}}try{while($listener.IsListening){$context=$listener.GetContext();HandleRequest $context}}finally{$listener.Stop()}
+$root=".";$port=8000;$configFile="config.json";if(Test-Path -Path $configFile -PathType Leaf){try{$config=Get-Content -Raw -Path $configFile|ConvertFrom-Json;Write-Host "Configuration file '$configFile' loaded successfully."-ForegroundColor Green}catch{Write-Host "Failed to load configuration file '$configFile'. Using default routing."-ForegroundColor Red;$config=@{routes=@{}}}}else{Write-Host "Configuration file '$configFile' not found. Using default routing."-ForegroundColor Yellow;$config=@{routes=@{}}};$listener=New-Object System.Net.HttpListener;$listener.Prefixes.Add("http://localhost:$port/");$listener.Start();Write-Host "Listening at http://localhost:$port/"-BackgroundColor Green;function HandleRequest{param([System.Net.HttpListenerContext]$context);$request=$context.Request;$response=$context.Response;$time=$(Get-Date).ToString("yyyy-MM-dd HH:mm:ss");$path=$request.Url.LocalPath;if($config.routes.PSObject.Properties.Name -contains $path){$file=$config.routes.$path}else{$file=$path.Substring(1)};$fullPath=Join-Path -Path $root -ChildPath $file;$summary="$time | URL: $path | File: $fullPath";if(Test-Path -Path $fullPath -PathType Leaf){try{$bytes=[System.IO.File]::ReadAllBytes($fullPath);$response.ContentType=Get-ContentType $fullPath;$response.ContentLength64=$bytes.Length;$response.OutputStream.Write($bytes,0,$bytes.Length);Write-Host "$summary | Status: OK"-ForegroundColor Green}catch{$response.StatusCode=500;$response.StatusDescription="Internal Server Error";Write-Host "$summary | Status: ERROR"-ForegroundColor Red}}else{$response.StatusCode=404;$response.StatusDescription="Not Found";$errorHtml="<html><head><title>404 Not Found</title></head><body><h1>404 - File Not Found</h1><p>The requested URL $($path) was not found on this server.</p></body></html>";$errorBytes=[System.Text.Encoding]::UTF8.GetBytes($errorHtml);$response.ContentType="text/html";$response.ContentLength64=$errorBytes.Length;$response.OutputStream.Write($errorBytes,0,$errorBytes.Length);Write-Host "$summary | Status: 404 Not Found"-ForegroundColor Yellow}$response.OutputStream.Close()}; function Get-ContentType{param([string]$path);switch([System.IO.Path]::GetExtension($path).ToLower()){".html"{"text/html"} ".htm"{"text/html"} ".txt"{"text/plain"} ".css"{"text/css"} ".js"{"application/javascript"} ".jpg"{"image/jpeg"} ".jpeg"{"image/jpeg"} ".png"{"image/png"} ".gif"{"image/gif"} ".svg"{"image/svg+xml"} ".pdf"{"application/pdf"} ".json"{"application/json"} ".xml"{"application/xml"} default{"application/octet-stream"}}}try{while($listener.IsListening){$context=$listener.GetContext();HandleRequest $context}}finally{$listener.Stop()}
 ```
 
-## Routes config file (routes.json)
-```
+## Config file (config.json)
+```JSON
 {
     "routes": {
         "/": "index.html",
@@ -35,7 +35,7 @@ $root = "."
 $port = 8000
 
 # Set the config file to load custom routes from
-$configFile = "routes.json";
+$configFile = "config.json";
 
 # Check if the config file exist
 if (Test-Path -Path $configFile -PathType Leaf) { 
@@ -201,7 +201,7 @@ param(
     [UInt16]$port = 8000,
 
     # Set the config file to load custom routes from
-    [String]$configFile = "routes.json";
+    [String]$configFile = "config.json";
 )
 
 # Check if the config file exist
