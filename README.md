@@ -21,7 +21,7 @@ $root=".";$port=8000;$configFile="routes.json";if(Test-Path -Path $configFile -P
 {
     "routes": {
         "/": "index.html",
-        "example": "example.html"
+        "/example": "example.html"
     }
 }
 ```
