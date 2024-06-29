@@ -1,5 +1,5 @@
 # fakewebserver
-Non-admin Windows PowerShell command to launch a fake web server for local dev purpose (no Cross-Origin error). Close Powershell window to stop the fake web server.
+Non-admin Windows PowerShell command to launch a fake web server for local dev purpose (no Cross-Origin error). Close Powershell window to stop the fake web server (or Ctrl+C and make at least one last request).
 
 The fake web server listen on `http://localhost:$port/`.
 
